@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Batch Management | Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css?v=1.1}">
+</head>
+<body>
+    <div th:replace="~{fragments/admin-sidebar :: frg-admin-sidebar}"></div>
+
+    <div class="content">
+        <div class="admin-header d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+                <button class="sidebar-toggle me-3" onclick="toggleSidebar()">
+                    <i class="bi bi-list"></i>
+                </button>
+                <div>
+                    <h2>Online Batches</h2>
+                    <p class="text-muted mb-0">Manage live online batches</p>
+                </div>
+            </div>
+            <button class="btn btn-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#addBatchModal">
+                <i class="bi bi-plus-circle me-2"></i>Add New Batch
+            </button>
+        </div>
+
+        <section class="mt-4">
+            <div th:if="${successMsg}" class="alert alert-success shadow-sm border-0" th:text="${successMsg}"></div>
+            <div th:if="${errorMsg}" class="alert alert-danger shadow-sm border-0" th:text="${errorMsg}"></div>
+
+            <div class="table-responsive shadow-sm rounded-3">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Image</th>
+                            <th>Batch Name</th>
+                            <th>Status</th>
+                            <th>Start Date</th>
+                            <th>Price</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:if="${#lists.isEmpty(batchesList)}">
+                            <td colspan="7" class="text-center text-muted py-4">No batches found. Add one!</td>
+                        </tr>
+                        <tr th:each="b, stat : ${batchesList}">
+                            <td th:text="${stat.count}"></td>
+                             <td>
+                                 <img th:if="${b.imageUrl}" th:src="${#strings.replace(b.imageUrl, 'http://localhost:8080/uploads/', '/uploads/')}" alt="Batch Image" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;" onerror="this.src='/images/placeholder.jpg'">
+                             </td>
+                            <td>
+                                <strong th:text="${b.batchName}"></strong><br/>
+                                <small class="text-muted" th:text="${#strings.abbreviate(b.batchDescription, 40)}"></small>
+                            </td>
+                            <td>
+                                <span class="badge bg-info text-dark" th:text="${b.batchStatus}"></span>
+                            </td>
+                            <td th:text="${b.startDate}"></td>
+                            <td>
+                                <span class="text-success fw-bold" th:text="${b.discountedPrice}"></span>
+                                <small class="text-muted text-decoration-line-through ms-1" th:text="${b.originalPrice}"></small>
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary me-1" title="Edit" 
+                                    data-bs-toggle="modal" th:data-bs-target="'#editBatchModal'+${b.id}">
+                                    <i class="bi bi-pencil-square"></i>
+                                </button>
+                                <a th:href="@{/deleteBatch(id=${b.id})}" class="btn btn-sm btn-outline-danger" title="Delete" onclick="return confirm('Are you sure you want to delete this batch?');">
+                                    <i class="bi bi-trash3"></i>
+                                </a>
+
+                                <!-- Edit Modal -->
+                                <div class="modal fade" th:id="'editBatchModal'+${b.id}" tabindex="-1" aria-hidden="true" style="text-align: left;">
+                                    <div class="modal-dialog modal-lg">
+                                        <div class="modal-content">
+                                            <form action="updateBatch" method="post" enctype="multipart/form-data">
+                                                <input type="hidden" name="id" th:value="${b.id}" />
+                                                <div class="modal-header bg-light">
+                                                    <h5 class="modal-title">Edit Batch</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body row g-3">
+                                                    <div class="col-md-6">
+                                                        <label class="form-label">Batch Name</label>
+                                                        <input type="text" class="form-control" name="batchName" th:value="${b.batchName}" required>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label class="form-label">Batch Status</label>
+                                                        <select class="form-select" name="batchStatus" required>
+                                                            <option value="Registration Open" th:selected="${b.batchStatus == 'Registration Open'}">Registration Open</option>
+                                                            <option value="Starting Soon" th:selected="${b.batchStatus == 'Starting Soon'}">Starting Soon</option>
+                                                            <option value="Ongoing" th:selected="${b.batchStatus == 'Ongoing'}">Ongoing</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label class="form-label">Discounted Price (₹)</label>
+                                                        <input type="text" class="form-control" name="discountedPrice" th:value="${b.discountedPrice}" required>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label class="form-label">Original Price (₹)</label>
+                                                        <input type="text" class="form-control" name="originalPrice" th:value="${b.originalPrice}">
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label class="form-label">Start Date</label>
+                                                        <input type="text" class="form-control" name="startDate" th:value="${b.startDate}" required>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label class="form-label">Batch Image</label>
+                                                        <input type="file" class="form-control" name="batchImg" accept="image/*">
+                                                         <small th:if="${b.imageUrl}" class="text-muted d-block mt-1">Current: <a th:href="${#strings.replace(b.imageUrl, 'http://localhost:8080/uploads/', '/uploads/')}" target="_blank">View Image</a></small>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <label class="form-label">Description</label>
+                                                        <textarea class="form-control" name="batchDescription" rows="3" required th:text="${b.batchDescription}"></textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <!-- Add Modal -->
+    <div class="modal fade" id="addBatchModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <form action="addBatch" method="post" enctype="multipart/form-data">
+                    <div class="modal-header bg-light">
+                        <h5 class="modal-title">Add New Batch</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Batch Name</label>
+                            <input type="text" class="form-control" name="batchName" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Batch Status</label>
+                            <select class="form-select" name="batchStatus" required>
+                                <option value="Registration Open">Registration Open</option>
+                                <option value="Starting Soon">Starting Soon</option>
+                                <option value="Ongoing">Ongoing</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Discounted Price (₹)</label>
+                            <input type="text" class="form-control" name="discountedPrice" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Original Price (₹)</label>
+                            <input type="text" class="form-control" name="originalPrice">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Start Date</label>
+                            <input type="text" class="form-control" name="startDate" placeholder="e.g. 15th August 2024" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Batch Image</label>
+                            <input type="file" class="form-control" name="batchImg" accept="image/*">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Description</label>
+                            <textarea class="form-control" name="batchDescription" rows="3" required></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Add Batch</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,218 @@
+:root {
+    --primary-indigo: #4f46e5;
+    --sidebar-bg: #1c1c1c;
+    --content-bg: #fdfdfd;
+    --border-color: #e2e8f0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: var(--content-bg);
+    color: #333;
+    overflow-x: hidden;
+}
+
+/* Solid Professional Sidebar */
+.sidebar {
+    width: 260px;
+    height: 100vh;
+    position: fixed;
+    background-color: var(--sidebar-bg);
+    color: #fff;
+    z-index: 1100;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-header {
+    padding: 25px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sidebar-header h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 0;
+}
+
+.sidebar .nav-link {
+    color: #a0a0a0;
+    font-weight: 500;
+    padding: 12px 25px;
+    transition: all 0.2s ease;
+}
+
+.sidebar .nav-link i {
+    margin-right: 12px;
+}
+
+.sidebar .nav-link:hover {
+    color: #fff;
+    background: rgba(255,255,255,0.05);
+}
+
+.sidebar .nav-link.active {
+    background-color: var(--primary-indigo);
+    color: #fff;
+}
+
+/* Grounded Content Area */
+.content {
+    margin-left: 260px;
+    padding: 40px;
+    transition: margin-left 0.3s ease;
+}
+
+.admin-header {
+    margin-bottom: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 15px;
+    max-width: 1000px;
+}
+
+section.mt-4, section.mt-5, .table-responsive, .stat-card {
+    max-width: 1000px;
+}
+
+.admin-header h2 {
+    font-weight: 500;
+    font-size: 1.5rem;
+    color: #111;
+    letter-spacing: 0.5px;
+    margin: 0;
+}
+
+.admin-header p {
+    color: #666;
+    margin: 0;
+}
+
+/* Mobile Toggle Button */
+.sidebar-toggle {
+    display: none;
+    background: none;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: #333;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+/* Precise Cards */
+.stat-card {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    margin-bottom: 20px;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111;
+}
+
+.stat-label {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+/* Clean Tables */
+.table {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+}
+
+.table thead th {
+    background: #f8f9fa;
+    color: #444;
+    font-weight: 600;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.btn-primary {
+    background-color: var(--primary-indigo) !important;
+    border-color: var(--primary-indigo) !important;
+    font-weight: 600;
+}
+
+.table-name {
+    font-weight: 500;
+    color: #111;
+}
+
+/* Pagination Sync */
+.pagination .page-link {
+    color: var(--primary-indigo);
+    border-color: var(--border-color);
+}
+
+.pagination .page-item.active .page-link {
+    background-color: var(--primary-indigo);
+    border-color: var(--primary-indigo);
+    color: #fff;
+}
+
+.pagination .page-link:hover {
+    background-color: #f8f9fa;
+    color: var(--primary-indigo);
+}
+
+.pagination .page-item.disabled .page-link {
+    color: #ccc;
+}
+
+/* Responsive Overrides */
+@media (max-width: 991px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+    .sidebar.open {
+        transform: translateX(0);
+        box-shadow: 10px 0 30px rgba(0,0,0,0.1);
+    }
+    .content {
+        margin-left: 0;
+        padding: 20px;
+    }
+    .admin-header {
+        flex-direction: row-reverse;
+    }
+    .sidebar-toggle {
+        display: block;
+        padding: 5px 10px;
+        font-size: 1.2rem;
+    }
+    .sidebar-close {
+        display: block !important;
+        background: none;
+        border: none;
+        color: #fff;
+        font-size: 1.5rem;
+    }
+    .stat-card {
+        padding: 12px 16px !important;
+        margin-bottom: 12px !important;
+    }
+    .stat-value {
+        font-size: 0.95rem !important;
+        white-space: nowrap;
+    }
+    .admin-header h2 {
+        font-size: 1.2rem !important;
+    }
+}
+
+.sidebar-close {
+    display: none;
+}

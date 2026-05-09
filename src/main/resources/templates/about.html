@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>About Us | VK Academy</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" th:href="@{/css/theme.css?v=5.0}">
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+            color: white;
+            padding: 100px 0;
+            margin-bottom: 50px;
+        }
+        .about-card {
+            border: none;
+            border-radius: 15px;
+            transition: transform 0.3s;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+        .about-card:hover {
+            transform: translateY(-10px);
+        }
+    </style>
+</head>
+
+<body>
+    <div th:if="${sessionUser == null OR sessionUser == ''}">
+    	<div th:replace="~{fragments/header :: crm-header}"></div>
+    </div>
+    <div th:unless="${sessionUser == null OR sessionUser == ''}">
+    	<div th:replace="~{fragments/user-header :: u-header}"></div>
+    </div>
+
+    <section class="hero-section text-center">
+        <div class="container">
+            <h1 class="display-3 fw-bold">Empowering Futures</h1>
+            <p class="lead">VK Academy is dedicated to providing world-class education for the next generation of tech leaders.</p>
+        </div>
+    </section>
+
+    <main class="container py-5">
+        <div class="row align-items-center mb-5">
+            <div class="col-md-6">
+                <h2 class="fw-bold mb-4">Our Mission</h2>
+                <p class="text-muted fs-5">At VK Academy, we believe that quality education should be accessible to everyone. Our mission is to bridge the gap between academic learning and industry requirements through hands-on, project-based training.</p>
+                <ul class="list-unstyled mt-4">
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> Expert Instructors from Industry</li>
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> 24/7 AI-Powered Student Support</li>
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> Practical Project-Based Learning</li>
+                </ul>
+            </div>
+            <div class="col-md-6">
+                <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" class="img-fluid rounded-4 shadow-lg" alt="Team Work">
+            </div>
+        </div>
+
+        <div class="row g-4 text-center mt-5">
+            <div class="col-md-4">
+                <div class="card about-card p-4">
+                    <i class="bi bi-mortarboard display-4 text-primary mb-3"></i>
+                    <h4>10,000+ Students</h4>
+                    <p class="text-muted">Successfully trained and placed in top tech companies worldwide.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card about-card p-4">
+                    <i class="bi bi-award display-4 text-primary mb-3"></i>
+                    <h4>Top Rated Courses</h4>
+                    <p class="text-muted">Consistently rated 4.8/5 by our vibrant learner community.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card about-card p-4">
+                    <i class="bi bi-globe display-4 text-primary mb-3"></i>
+                    <h4>Global Reach</h4>
+                    <p class="text-muted">Bringing quality education to students in over 50 countries.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div th:replace="~{fragments/footer :: crm-footer}"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

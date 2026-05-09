@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Feedback Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css?v=1.1}">
+    <style>
+        .icon-read, .icon-unread {
+            padding: 6px 10px;
+            color: white;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+        .icon-read { background-color: #10b981; }
+        .icon-unread { background-color: #ef4444; }
+    </style>
+</head>
+<body>
+    <div th:replace="~{fragments/admin-sidebar :: frg-admin-sidebar}"></div>
+
+    <div class="content">
+        <div class="admin-header">
+            <button class="sidebar-toggle" onclick="toggleSidebar()">
+                <i class="bi bi-list"></i>
+            </button>
+            <div>
+                <h2>Student Feedback</h2>
+                <p class="text-muted">Review and manage messages from your academy's community</p>
+            </div>
+        </div>
+
+        <section class="mt-4">
+            <div th:if="${successMsg}" class="alert alert-success border-0 shadow-sm" th:text="${successMsg}"></div>
+            <div th:if="${errorMsg}" class="alert alert-danger border-0 shadow-sm" th:text="${errorMsg}"></div>
+            
+            <div th:if="${#lists.isEmpty(feedbackPage.content)}" class="alert alert-light border shadow-sm py-4 text-center text-muted italic">
+                <i class="bi bi-chat-left-dots fs-1 d-block mb-2"></i>
+                No student feedback found at the moment.
+            </div>
+            
+            <div th:if="${!#lists.isEmpty(feedbackPage.content)}" class="table-responsive shadow-sm rounded-3">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>Student Name</th>
+                            <th>Email Address</th>
+                            <th>Message Preview</th>
+                            <th class="text-center">Details</th>
+                            <th class="text-center">Remove</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="feedback : ${feedbackPage.content}">
+                            <td class="table-name" th:text="${feedback.userName}"></td>
+                            <td th:text="${feedback.userEmail}"></td>
+                            <td class="text-muted" th:text="${#strings.length(feedback.userFeedback) > 40 ? #strings.substring(feedback.userFeedback, 0, 40) + '...' : feedback.userFeedback}"></td>
+                            <td class="text-center">
+                                <button type="button" class="btn btn-light btn-sm border" data-bs-toggle="modal" data-bs-target="#feedbackModal" 
+                                    th:data-feedback-id="${feedback.id}"
+                                    th:data-feedback="${feedback.userFeedback}"
+                                    th:data-feedback-name="${feedback.userName}"
+                                    th:data-feedback-email="${feedback.userEmail}"
+                                    th:data-feedback-date="${feedback.dateOfFeedback}"
+                                    th:data-feedback-time="${feedback.timeOfFeedback}">
+                                    <i th:if="${feedback.readStatus == 'unread'}" class="bi bi-envelope-fill icon-unread"></i>
+                                    <i th:if="${feedback.readStatus == 'read'}" class="bi bi-envelope-check icon-read"></i>
+                                </button>
+                            </td>
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-outline-danger border-0" th:onclick="'confirmDeleteFeedback(' + ${feedback.id} + ')'">
+                                    <i class="bi bi-trash3-fill"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <nav class="mt-4" th:if="${!#lists.isEmpty(feedbackPage.content)}" aria-label="Page navigation">
+                <ul class="pagination">
+                    <li class="page-item" th:classappend="${feedbackPage.hasPrevious()} ? '' : 'disabled'">
+                        <a class="page-link" th:href="@{/adminFeedback(page=${feedbackPage.number-1})}">&laquo;</a>
+                    </li>
+                    <li class="page-item" th:each="i : ${#numbers.sequence(0, feedbackPage.totalPages-1)}" th:classappend="${feedbackPage.number==i} ? 'active' : ''">
+                        <a class="page-link" th:href="@{/adminFeedback(page=${i})}" th:text="${i+1}"></a>
+                    </li>
+                    <li class="page-item" th:classappend="${feedbackPage.hasNext()} ? '' : 'disabled'">
+                        <a class="page-link" th:href="@{/adminFeedback(page=${feedbackPage.number+1})}">&raquo;</a>
+                    </li>
+                </ul>
+            </nav>
+        </section>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="feedbackModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-light border-0">
+                    <h5 class="modal-title fw-bold">Feedback Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="small fw-bold text-muted text-uppercase d-block mb-1">Student</label>
+                        <p class="fs-5 fw-bold mb-0" id="modalFeedbackName"></p>
+                        <p class="text-primary small" id="modalFeedbackEmail"></p>
+                    </div>
+                    <div class="mb-4">
+                        <label class="small fw-bold text-muted text-uppercase d-block mb-1">Message</label>
+                        <p class="bg-light p-3 rounded-3" id="modalFeedbackContent"></p>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <label class="small fw-bold text-muted text-uppercase d-block mb-1">Date</label>
+                            <p class="mb-0" id="modalFeedbackDate"></p>
+                        </div>
+                        <div class="col-6">
+                            <label class="small fw-bold text-muted text-uppercase d-block mb-1">Time</label>
+                            <p class="mb-0" id="modalFeedbackTime"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <form id="markReadForm" method="post" action="/updateFeedbackStatus" class="me-2">
+                        <input type="hidden" name="id" id="feedbackId" />
+                        <input type="hidden" name="status" value="read" />
+                        <button type="submit" class="btn btn-primary px-4">Mark Read</button>
+                    </form>
+                    <form id="markUnreadForm" method="post" action="/updateFeedbackStatus">
+                        <input type="hidden" name="id" id="feedbackIdUnread" />
+                        <input type="hidden" name="status" value="unread" />
+                        <button type="submit" class="btn btn-outline-secondary px-4">Unread</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteFeedbackModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-body text-center p-4">
+                    <i class="bi bi-trash3 text-danger fs-1 mb-3 d-block"></i>
+                    <h5 class="fw-bold">Delete Feedback?</h5>
+                    <p class="text-muted small">This action cannot be undone.</p>
+                    <div class="d-flex justify-content-center gap-2 mt-4">
+                        <button type="button" class="btn btn-light px-3" data-bs-dismiss="modal">Cancel</button>
+                        <a id="confirmDeleteBtn" href="#" class="btn btn-danger px-3">Delete</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var feedbackModal = document.getElementById('feedbackModal');
+            feedbackModal.addEventListener('show.bs.modal', function (event) {
+                var button = event.relatedTarget;
+                document.getElementById('modalFeedbackName').textContent = button.getAttribute('data-feedback-name');
+                document.getElementById('modalFeedbackEmail').textContent = button.getAttribute('data-feedback-email');
+                document.getElementById('modalFeedbackContent').textContent = button.getAttribute('data-feedback');
+                document.getElementById('modalFeedbackDate').textContent = button.getAttribute('data-feedback-date');
+                document.getElementById('modalFeedbackTime').textContent = button.getAttribute('data-feedback-time');
+                document.getElementById('feedbackId').value = button.getAttribute('data-feedback-id');
+                document.getElementById('feedbackIdUnread').value = button.getAttribute('data-feedback-id');
+            });
+        });
+
+        function confirmDeleteFeedback(id) {
+            var deleteModal = new bootstrap.Modal(document.getElementById('deleteFeedbackModal'));
+            document.getElementById('confirmDeleteBtn').href = '/deleteFeedback?id=' + id;
+            deleteModal.show();
+        }
+    </script>
+</body>
+</html>

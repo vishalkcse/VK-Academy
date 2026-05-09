@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css?v=1.6}" />
+    
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+</head>
+
+<body>
+
+    <div th:replace="~{fragments/admin-sidebar :: frg-admin-sidebar}"></div>
+
+    <div class="content">
+        <div class="admin-header">
+            <button class="sidebar-toggle" onclick="toggleSidebar()">
+                <i class="bi bi-list"></i>
+            </button>
+            <div>
+                <h2>Dashboard Overview</h2>
+                <p>Real-time analytics and business metrics for your academy</p>
+            </div>
+        </div>
+
+        <!-- Dynamic Stats Grid -->
+        <div class="row g-2 g-md-4 mb-5">
+            <div class="col-4 col-md-4">
+                <div class="stat-card">
+                    <div class="stat-label mb-1">Revenue</div>
+                    <div class="stat-value" th:text="${'Rs. ' + #numbers.formatDecimal(totalRevenue, 0, 'COMMA', 0, 'POINT')}">Rs. 0</div>
+                </div>
+            </div>
+            <div class="col-4 col-md-4">
+                <div class="stat-card">
+                    <div class="stat-label mb-1">Students</div>
+                    <div class="stat-value" th:text="${totalStudents}">0</div>
+                </div>
+            </div>
+            <div class="col-4 col-md-4">
+                <div class="stat-card">
+                    <div class="stat-label mb-1">Courses</div>
+                    <div class="stat-value" th:text="${totalCourses}">0</div>
+                </div>
+            </div>
+        </div>
+    
+    	<section class="mt-4">
+            <div class="row g-4">
+                <div class="col-lg-6">
+                    <div class="stat-card">
+		       			<h6 class="fw-bold mb-4 text-muted small text-uppercase">Sales Distribution</h6>
+		       			<div id="myPlot"></div>
+		       		</div>
+                </div>
+                
+                <div class="col-lg-6">
+                    <div class="stat-card text-center">
+		       			<h6 class="fw-bold mb-4 text-muted small text-uppercase">Course Popularity</h6>
+		       			<canvas id="myPieChart"></canvas>
+		       		</div>
+                </div>
+                
+                <div class="col-12">
+                    <div class="stat-card">
+		       			<h6 class="fw-bold mb-4 text-muted small text-uppercase">Enrollment Trends</h6>
+		       			<canvas class="mt-3" id="myChart" style="max-height: 380px;"></canvas>
+		       		</div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+        
+    <script th:inline="javascript">
+		function graphOne()
+		{
+			const xArray = /*[[ ${date11} ]]*/ [];
+			const yArray = /*[[ ${totalAmount11} ]]*/ [];
+			
+			const data = [{
+			  x:xArray,
+			  y:yArray,
+			  type:"bar",
+              marker: { color: '#4f46e5' }
+			}];
+			
+			const layout = {
+                margin: { t: 20, b: 120, l: 100, r: 20 },
+                xaxis: { 
+                    tickangle: -45,
+                    tickfont: { size: 10, color: '#666' },
+                    automargin: true
+                },
+                yaxis: {
+                    tickfont: { size: 10, color: '#666' },
+                    automargin: true
+                },
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                displayModeBar: false
+            };
+			
+			Plotly.newPlot("myPlot", data, layout, {displayModeBar: false, responsive: true});
+		}
+		graphOne();
+		
+		function graphTwo()
+		{
+			var xValues = /*[[ ${coursename1} ]]*/ [];
+			var yValues = /*[[ ${coursecount1} ]]*/ [];
+			
+			// Living Dashboard: Randomized Color Offset on every refresh
+            const randomOffset = Math.floor(Math.random() * 360);
+			var barColors = xValues.map((_, i) => `hsl(${(randomOffset + i * 137.5) % 360}, 65%, 55%)`);
+			
+			new Chart("myPieChart", {
+			  type: "pie",
+			  data: {
+			    labels: xValues,
+			    datasets: [{
+			      backgroundColor: barColors,
+                  borderWidth: 1,
+                  borderColor: '#fff',
+			      data: yValues
+			    }]
+			  },
+			  options: {
+                legend: { position: 'bottom', labels: { fontSize: 11, boxWidth: 12 } }
+              }
+			});
+		}
+		graphTwo();
+		
+		function graphThree()
+		{
+			const xValues = /*[[ ${dates1} ]]*/ [];
+			const yValues = /*[[ ${counts1} ]]*/ [];
+			
+			var maxYValues = Math.max(...yValues)+2;
+			
+			new Chart("myChart", {
+			  type: "line",
+			  data: {
+			    labels: xValues,
+			    datasets: [{
+			      fill: false,
+			      borderColor: "#4f46e5",
+                  borderWidth: 1.5,
+                  lineTension: 0,
+                  pointRadius: 2,
+			      data: yValues
+			    }]
+			  },
+			  options: {
+			    legend: {display: false},
+                scales: {
+                    yAxes: [{ gridLines: { color: '#f1f1f1' }, ticks: { min: 0, max:maxYValues, fontSize: 10 } }],
+                    xAxes: [{ gridLines: { display: false }, ticks: { fontSize: 10 } }]
+                }
+			  }
+			});
+		}
+		graphThree();
+	</script>
+        
+</body>
+</html>

@@ -1,0 +1,190 @@
+<header th:fragment="crm-header">
+
+    <style>
+        :root {
+            --vk-indigo: #5a67d8;
+            --vk-indigo-hover: #4c51bf;
+        }
+
+
+
+
+        .btn-primary {
+            background-color: var(--vk-indigo) !important;
+            border-color: var(--vk-indigo) !important;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: var(--vk-indigo-hover) !important;
+            border-color: var(--vk-indigo-hover) !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(67, 56, 202, 0.2);
+        }
+        .btn-outline-primary {
+            color: var(--vk-indigo) !important;
+            border-color: var(--vk-indigo) !important;
+            transition: all 0.3s ease;
+        }
+        .btn-outline-primary:hover {
+            background-color: var(--vk-indigo) !important;
+            border-color: var(--vk-indigo) !important;
+            color: #fff !important;
+        }
+        .btn-outline-light {
+            color: #fff !important;
+            border-color: #fff !important;
+        }
+        .btn-outline-light:hover {
+            color: var(--vk-indigo) !important;
+            background-color: #fff !important;
+            border-color: #fff !important;
+        }
+        .btn-light.text-primary:hover {
+            color: var(--vk-indigo) !important;
+            background-color: #f8fafc !important;
+        }
+        .text-primary {
+            color: var(--vk-indigo) !important;
+        }
+        /* Navbar color is handled by theme.css for both light and dark modes */
+        .coupons-bar-bg {
+            background-color: #f8fafc; /* Match hero start light */
+            transition: all 0.3s ease;
+        }
+        [data-bs-theme="dark"] .coupons-bar-bg {
+            background-color: #0f172a !important; /* Match hero start dark */
+        }
+        /* Premium Coupon Badges */
+        .bg-light-subtle {
+            transition: all 0.3s ease;
+        }
+        [data-bs-theme="dark"] .bg-light-subtle {
+            background-color: rgba(67, 56, 202, 0.15) !important;
+            border-color: rgba(67, 56, 202, 0.4) !important;
+        }
+        [data-bs-theme="dark"] .text-indigo {
+            color: #818cf8 !important; /* Bright indigo for dark mode */
+        }
+        /* Theme awareness for branding */
+        .navbar-brand span {
+            color: #ffffff !important;
+            transition: color 0.3s ease;
+        }
+        [data-bs-theme="dark"] h1, [data-bs-theme="dark"] h2, [data-bs-theme="dark"] h3, 
+        [data-bs-theme="dark"] h4, [data-bs-theme="dark"] h5, [data-bs-theme="dark"] h6 {
+            color: #ffffff !important;
+        }
+        [data-bs-theme="dark"] .navbar-brand span {
+            color: #ffffff !important;
+        }
+        /* Hero Section Theme Sync */
+        .hero-theme-bg {
+            background: linear-gradient(135deg, #f8fafc 0%, #f5f3ff 100%);
+            border: none !important;
+            transition: all 0.3s ease;
+        }
+        [data-bs-theme="dark"] .hero-theme-bg {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%) !important;
+            border: none !important;
+        }
+        [data-bs-theme="dark"] .text-muted {
+            color: #cbd5e1 !important;
+        }
+        /* Form Control Visibility */
+        [data-bs-theme="dark"] .form-control,
+        [data-bs-theme="dark"] .form-select {
+            color: #ffffff !important;
+            background-color: #1e293b !important;
+            border: 2px solid var(--vk-indigo) !important;
+        }
+        [data-bs-theme="dark"] .form-control::placeholder {
+            color: rgba(255,255,255,0.5) !important;
+        }
+        /* Unified Search Pill Theme */
+        .search-pill-bg {
+            background-color: #ffffff;
+            transition: all 0.3s ease;
+        }
+        [data-bs-theme="dark"] .search-pill-bg {
+            background-color: #1e293b !important;
+            border-color: rgba(255,255,255,0.1) !important;
+        }
+        /* Ensure toggler is visible */
+        [data-bs-theme="dark"] .navbar-toggler {
+            border-color: rgba(255,255,255,0.4) !important;
+        }
+
+        [data-bs-theme="dark"] .navbar-toggler-icon {
+            /* Icon is already white in theme.css, no need to invert */
+        }
+
+    </style>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <nav class="navbar navbar-expand-lg bg-primary py-2 shadow-sm">
+        <div class="container-fluid px-md-5">
+            <a class="navbar-brand d-flex align-items-center" href="/index">
+                <img th:src="@{/images/vk-main-logo.png}" alt="VK Academy Logo" style="height: 60px; width: auto; border-radius: 50%;" />
+                <span class="h4 text-white ms-2 mb-0 fw-bold">VK Academy</span>
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link text-white fw-semibold px-3" aria-current="page" href="/index">Home</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link text-white fw-semibold dropdown-toggle px-3" href="#" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            More
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/index#online-batches">Online Batch Details</a></li>
+                            <li><a class="dropdown-item" href="/free-resources">Free Resources</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="/index#about-us">About Us</a></li>
+                            <li><a class="dropdown-item" href="/index#contact-us">Contact Us</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <a href="/login" class="btn btn-outline-light ms-lg-5 mb-2 mb-lg-0 px-4 fw-bold"> Login </a>
+                <a href="/register" class="btn btn-light text-primary ms-lg-3 me-lg-3 px-4 fw-bold"> Register </a>
+                
+                <!-- Dark Mode Toggle -->
+                <button id="dark-mode-toggle" class="btn btn-outline-light border-0 rounded-circle" title="Toggle Dark Mode">
+                    <i class="bi bi-moon-stars-fill" id="dark-mode-icon" style="font-size: 1.2rem;"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+    <script>
+        // Dark Mode Logic for Guest Header
+        const darkModeToggle = document.getElementById('dark-mode-toggle');
+        const darkModeIcon = document.getElementById('dark-mode-icon');
+        const htmlElement = document.documentElement;
+
+        // Check for saved theme preference
+        if (localStorage.getItem('theme') === 'dark') {
+            htmlElement.setAttribute('data-bs-theme', 'dark');
+            darkModeIcon.classList.replace('bi-moon-stars-fill', 'bi-sun-fill');
+        }
+
+        darkModeToggle.addEventListener('click', () => {
+            if (htmlElement.hasAttribute('data-bs-theme')) {
+                htmlElement.removeAttribute('data-bs-theme');
+                darkModeIcon.classList.replace('bi-sun-fill', 'bi-moon-stars-fill');
+                localStorage.setItem('theme', 'light');
+            } else {
+                htmlElement.setAttribute('data-bs-theme', 'dark');
+                darkModeIcon.classList.replace('bi-moon-stars-fill', 'bi-sun-fill');
+                localStorage.setItem('theme', 'dark');
+            }
+        });
+    </script>
+</header>

@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Ticker Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css?v=1.4}">
+    <style>
+        .ticker-preview-box {
+            background: #1c1c1c;
+            color: #fff;
+            padding: 1.25rem;
+            border-radius: 12px;
+            font-family: 'Courier New', Courier, monospace;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid #333;
+        }
+        .preview-marquee {
+            display: inline-block;
+            white-space: nowrap;
+            animation: preview-scroll 20s linear infinite;
+        }
+        @keyframes preview-scroll {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+    </style>
+</head>
+<body>
+    <div th:replace="~{fragments/admin-sidebar :: frg-admin-sidebar}"></div>
+
+    <div class="content">
+        <div class="admin-header">
+            <button class="sidebar-toggle" onclick="toggleSidebar()">
+                <i class="bi bi-list"></i>
+            </button>
+            <div>
+                <h2>Ticker Management</h2>
+                <p>Broadcast live announcements and updates to all students across the platform</p>
+            </div>
+        </div>
+
+        <section class="mt-4">
+            <div th:if="${successMsg}" class="alert alert-success border-0 shadow-sm mb-4" th:text="${successMsg}"></div>
+            <div th:if="${errorMsg}" class="alert alert-danger border-0 shadow-sm mb-4" th:text="${errorMsg}"></div>
+
+            <div class="stat-card p-4">
+                <h5 class="mb-4 fw-medium text-muted small text-uppercase">Update Announcement Text</h5>
+                <form th:action="@{/updateTicker}" method="post">
+                    <div class="mb-4">
+                        <textarea name="content" class="form-control border p-3" rows="4" th:text="${tickerContent}" placeholder="Type your live message here..."></textarea>
+                        <div class="form-text mt-2"><i class="bi bi-info-circle me-1"></i> Tip: Use the | symbol to separate multiple updates for a professional look.</div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label small fw-medium text-muted text-uppercase mb-2">Live Preview</label>
+                        <div class="ticker-preview-box">
+                            <div class="preview-marquee" th:text="${tickerContent}"></div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid d-md-block text-md-end">
+                        <button type="submit" class="btn btn-primary px-4 py-2">
+                            <i class="bi bi-send-fill me-2"></i> Publish Updates
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

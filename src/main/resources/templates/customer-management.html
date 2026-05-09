@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Customer Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css?v=1.4}">
+</head>
+<body>
+    <div th:replace="~{fragments/admin-sidebar :: frg-admin-sidebar}"></div>
+
+    <div class="content">
+        <div class="admin-header">
+            <button class="sidebar-toggle" onclick="toggleSidebar()">
+                <i class="bi bi-list"></i>
+            </button>
+            <div>
+                <h2>Customer Management</h2>
+                <p>View and manage students, monitor ban status, and review enrollment details</p>
+            </div>
+        </div>
+
+        <section class="mt-5">
+            <div th:if="${successMsg}" class="alert alert-success border-0 shadow-sm" th:text="${successMsg}"></div>
+            <div th:if="${errorMsg}" class="alert alert-danger border-0 shadow-sm" th:text="${errorMsg}"></div>
+
+            <div th:if="${#lists.isEmpty(userPage.content)}" class="alert alert-light border py-4 text-center text-muted">
+                No registered customers found.
+            </div>
+            
+            <div th:if="${!#lists.isEmpty(userPage.content)}" class="table-responsive shadow-sm rounded-3">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone No.</th>
+                            <th>City</th>
+                            <th>Status</th>
+                            <th class="text-center">Info</th>
+                            <th class="text-center">Ban</th>
+                            <th class="text-center">Unban</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="user : ${userPage.content}">
+                            <td class="table-name" th:text="${user.name}"></td>
+                            <td th:text="${user.email}"></td>
+                            <td th:text="${user.phoneno}"></td>
+                            <td th:text="${user.city}"></td>
+                            <td>
+                                <span th:if="${user.banStatus}" class="badge bg-danger rounded-pill px-3">Banned</span>
+                                <span th:unless="${user.banStatus}" class="badge bg-success rounded-pill px-3">Active</span>
+                            </td>
+                            <td class="text-center">
+                                <a th:href="@{/userCoursesDetails(userEmail=${user.email}, userName=${user.name})}" class="btn btn-sm btn-info text-white">
+                                    <i class="bi bi-info-circle"></i>
+                                </a>
+                            </td>
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-outline-danger border-0" th:data-uemail="${user.email}" onclick="banUser(this.getAttribute('data-uemail'))">
+                                    <i class="bi bi-x-circle"></i>
+                                </button>
+                            </td>
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-outline-success border-0" th:data-uemail="${user.email}" onclick="unBanUser(this.getAttribute('data-uemail'))">
+                                    <i class="bi bi-check-circle"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <nav class="mt-4" th:if="${!#lists.isEmpty(userPage.content)}" aria-label="Page navigation">
+                <ul class="pagination">
+                    <li class="page-item" th:classappend="${userPage.hasPrevious()} ? '' : 'disabled'">
+                        <a class="page-link" th:href="@{/customerManagement(page=${userPage.number-1})}">&laquo;</a>
+                    </li>
+                    <li class="page-item" th:each="i : ${#numbers.sequence(0, userPage.totalPages-1)}" th:classappend="${userPage.number==i} ? 'active' : ''">
+                        <a class="page-link" th:href="@{/customerManagement(page=${i})}" th:text="${i+1}"></a>
+                    </li>
+                    <li class="page-item" th:classappend="${userPage.hasNext()} ? '' : 'disabled'">
+                        <a class="page-link" th:href="@{/customerManagement(page=${userPage.number+1})}">&raquo;</a>
+                    </li>
+                </ul>
+            </nav>
+        </section>
+    </div>
+
+    <!-- Ban Modal -->
+    <div class="modal fade" id="banUserModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold">Ban Account</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center py-4">
+                    <i class="bi bi-person-x-fill text-danger" style="font-size: 3rem;"></i>
+                    <p class="mt-3 fs-5">Restrict this user from accessing the platform?</p>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger px-4" id="banUserBtn">Ban User</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Unban Modal -->
+    <div class="modal fade" id="unBanUserModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold">Restore Access</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center py-4">
+                    <i class="bi bi-person-check-fill text-success" style="font-size: 3rem;"></i>
+                    <p class="mt-3 fs-5">Allow this user to access their account again?</p>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary px-4" id="unBanUserBtn">Unban User</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function banUser(userEmail) {
+            var banModal = new bootstrap.Modal(document.getElementById('banUserModal'));
+            banModal.show();
+            document.getElementById('banUserBtn').onclick = function() {
+                window.location.href = '/banUserDetails?userEmail=' + encodeURIComponent(userEmail) + '&banStatus=true';
+            };
+        }
+        function unBanUser(userEmail) {
+            var unbanModal = new bootstrap.Modal(document.getElementById('unBanUserModal'));
+            unbanModal.show();
+            document.getElementById('unBanUserBtn').onclick = function() {
+                window.location.href = '/banUserDetails?userEmail=' + encodeURIComponent(userEmail) + '&banStatus=false';
+            };
+        }
+    </script>
+</body>
+</html>
