@@ -164,18 +164,7 @@ public class UserController
 			try
 			{
 				userService.registerUserService(user);
-				
-				String subject = "Welcome to VK Academy!";
-				String body = "Hi " + user.getName() + ",\n\n" +
-				              "Congratulations! Your registration with VK Academy is successful.\n" +
-						      "You can now log in and start learning.\n\n" +
-				              "Best Regards,\n" +
-						      "Vishal Kumar (Founder, VK Academy)";
-				
-				emailService.sendEmail(user.getEmail(), subject, body);
-				
 				model.addAttribute("successMsg", "Registered Successfully");
-				return "register";
 			}
 			catch(Exception e)
 			{
@@ -183,6 +172,25 @@ public class UserController
 				model.addAttribute("errorMsg", "Registration Failed");
 				return "error";
 			}
+
+			/* Send welcome email separately — if email fails, registration is still successful */
+			try
+			{
+				String subject = "Welcome to VK Academy!";
+				String body = "Hi " + user.getName() + ",\n\n" +
+				              "Congratulations! Your registration with VK Academy is successful.\n" +
+					          "You can now log in and start learning.\n\n" +
+				              "Best Regards,\n" +
+					          "Vishal Kumar (Founder, VK Academy)";
+				emailService.sendEmail(user.getEmail(), subject, body);
+			}
+			catch(Exception e)
+			{
+				// Email sending failed silently — registration is already done
+				e.printStackTrace();
+			}
+
+			return "register";
 		}
 	}
 	
