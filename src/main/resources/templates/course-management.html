@@ -47,7 +47,7 @@
                         <tr th:each="course : ${coursesPage.content}">
                             <td class="table-name" th:text="${course.name}"></td>
                             <td th:text="${'Rs. ' + course.discountedPrice}"></td>
-                            <td> <img th:src="${#strings.replace(course.imageUrl, 'http://localhost:8080/uploads/', '/uploads/')}" width="120" class="rounded shadow-sm" alt="Course Image" /> </td>
+                            <td> <img th:src="${course.imageUrl}" width="120" class="rounded shadow-sm" alt="Course Image" /> </td>
                             <td class="text-center">
                                 <a th:href="@{/editCourse(id=${course.id})}" class="btn btn-sm btn-warning">
                                     <i class="bi bi-pencil-fill text-white"></i>

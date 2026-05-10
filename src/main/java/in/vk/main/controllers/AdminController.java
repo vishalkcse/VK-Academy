@@ -26,6 +26,9 @@ import in.vk.main.services.CouponService;
 import in.vk.main.services.FeedbackService;
 import in.vk.main.services.UserService;
 import in.vk.main.repositories.TickerRepository;
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
+import java.util.Map;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -234,14 +237,18 @@ public class AdminController
 	{
 		try {
 			if(batchImg != null && !batchImg.isEmpty()) {
-				String imgName = batchImg.getOriginalFilename();
-				Path imgPath = Paths.get("src/main/resources/static/uploads/" + imgName);
-				Files.write(imgPath, batchImg.getBytes());
-				batch.setImageUrl("/uploads/" + imgName);
+				Cloudinary cloudinary = new Cloudinary(ObjectUtils.asMap(
+					"cloud_name", System.getenv("CLOUDINARY_CLOUD_NAME"),
+					"api_key", System.getenv("CLOUDINARY_API_KEY"),
+					"api_secret", System.getenv("CLOUDINARY_API_SECRET")
+				));
+				Map uploadResult = cloudinary.uploader().upload(batchImg.getBytes(), ObjectUtils.emptyMap());
+				batch.setImageUrl((String) uploadResult.get("secure_url"));
 			}
 			batchService.saveBatch(batch);
 			redirectAttributes.addFlashAttribute("successMsg", "Batch added successfully!");
 		} catch (Exception e) {
+			e.printStackTrace();
 			redirectAttributes.addFlashAttribute("errorMsg", "Failed to add batch.");
 		}
 		return "redirect:/batchManagement";
@@ -253,16 +260,20 @@ public class AdminController
 		try {
 			Batch oldBatch = batchService.getBatchById(batch.getId());
 			if(batchImg != null && !batchImg.isEmpty()) {
-				String imgName = batchImg.getOriginalFilename();
-				Path imgPath = Paths.get("src/main/resources/static/uploads/" + imgName);
-				Files.write(imgPath, batchImg.getBytes());
-				batch.setImageUrl("/uploads/" + imgName);
+				Cloudinary cloudinary = new Cloudinary(ObjectUtils.asMap(
+					"cloud_name", System.getenv("CLOUDINARY_CLOUD_NAME"),
+					"api_key", System.getenv("CLOUDINARY_API_KEY"),
+					"api_secret", System.getenv("CLOUDINARY_API_SECRET")
+				));
+				Map uploadResult = cloudinary.uploader().upload(batchImg.getBytes(), ObjectUtils.emptyMap());
+				batch.setImageUrl((String) uploadResult.get("secure_url"));
 			} else {
 				batch.setImageUrl(oldBatch.getImageUrl());
 			}
 			batchService.saveBatch(batch);
 			redirectAttributes.addFlashAttribute("successMsg", "Batch updated successfully!");
 		} catch (Exception e) {
+			e.printStackTrace();
 			redirectAttributes.addFlashAttribute("errorMsg", "Failed to update batch.");
 		}
 		return "redirect:/batchManagement";

@@ -1,12 +1,13 @@
 package in.vk.main.services;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -20,9 +21,7 @@ import in.vk.main.repositories.CourseRepository;
 @Service
 public class CourseService 
 {
-	private String UPLOAD_DIR = "src/main/resources/static/uploads/";
-	private String IMAGE_URL = "/uploads/";
-	
+	// Cloudinary configuration is picked from environment variables in the method
 	@Autowired
 	private CourseRepository courseRepository;
 	
@@ -40,12 +39,15 @@ public class CourseService
 	
 	public void addCourse(Course course, MultipartFile courseImg) throws IOException
 	{
-		String imgName = courseImg.getOriginalFilename();
-		Path imgPath = Paths.get(UPLOAD_DIR+imgName);
-		Files.write(imgPath, courseImg.getBytes());
-		
-		String imgUrl = IMAGE_URL+imgName;
-		course.setImageUrl(imgUrl);
+		if(courseImg != null && !courseImg.isEmpty()) {
+			Cloudinary cloudinary = new Cloudinary(ObjectUtils.asMap(
+				"cloud_name", System.getenv("CLOUDINARY_CLOUD_NAME"),
+				"api_key", System.getenv("CLOUDINARY_API_KEY"),
+				"api_secret", System.getenv("CLOUDINARY_API_SECRET")
+			));
+			Map uploadResult = cloudinary.uploader().upload(courseImg.getBytes(), ObjectUtils.emptyMap());
+			course.setImageUrl((String) uploadResult.get("secure_url"));
+		}
 		
 		courseRepository.save(course);
 	}

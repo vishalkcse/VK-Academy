@@ -1,8 +1,8 @@
 package in.vk.main.controllers;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.Map;
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -20,9 +20,7 @@ import in.vk.main.services.CourseService;
 @Controller
 public class CourseController
 {
-	private String UPLOAD_DIR = "src/main/resources/static/uploads/";
-	private String IMAGE_URL = "/uploads/";
-	
+	// Cloudinary configuration is picked from environment variables in the method
 	@Autowired
 	private CourseService courseService;
 	
@@ -71,14 +69,15 @@ public class CourseController
 		{
 			Course oldCourseObj = courseService.getCourseDetailsById(newCourseObj.getId());
 			
-			if(!courseImg.isEmpty())
+			if(courseImg != null && !courseImg.isEmpty())
 			{
-				String imgName = courseImg.getOriginalFilename();
-				Path imgPath = Paths.get(UPLOAD_DIR+imgName);
-				Files.write(imgPath, courseImg.getBytes());
-				
-				String imgUrl = IMAGE_URL+imgName;
-				newCourseObj.setImageUrl(imgUrl);
+				Cloudinary cloudinary = new Cloudinary(ObjectUtils.asMap(
+					"cloud_name", System.getenv("CLOUDINARY_CLOUD_NAME"),
+					"api_key", System.getenv("CLOUDINARY_API_KEY"),
+					"api_secret", System.getenv("CLOUDINARY_API_SECRET")
+				));
+				Map uploadResult = cloudinary.uploader().upload(courseImg.getBytes(), ObjectUtils.emptyMap());
+				newCourseObj.setImageUrl((String) uploadResult.get("secure_url"));
 			}
 			else
 			{
