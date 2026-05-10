@@ -41,9 +41,9 @@
             <!-- courses -->
             <div class="row justify-content-center">
                 <!-- register card start -->
-                <div class="col-lg-5 col-md-6">
+                <div class="col-lg-4 col-md-6">
                     <form action="regForm" method="post" onsubmit="return validateForm()" th:object="${user}">
-                        <div class="card shadow p-5">
+                        <div class="card shadow p-4 p-md-5">
                         	<div th:if="${successMsg}" class="mb-3 alert alert-success" role="alert">
                         		<span th:text="${successMsg}"></span>
 							</div>
@@ -100,11 +100,6 @@
                 </div>
             </div>
             <!-- register card ends -->
-
-            </div>
-        </section>
-
-            </div>
         </section>
     </main>
     <!-- main content ends -->
