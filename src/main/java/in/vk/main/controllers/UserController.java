@@ -173,22 +173,25 @@ public class UserController
 				return "error";
 			}
 
-			/* Send welcome email separately — if email fails, registration is still successful */
-			try
-			{
-				String subject = "Welcome to VK Academy!";
-				String body = "Hi " + user.getName() + ",\n\n" +
-				              "Congratulations! Your registration with VK Academy is successful.\n" +
-					          "You can now log in and start learning.\n\n" +
-				              "Best Regards,\n" +
-					          "Vishal Kumar (Founder, VK Academy)";
-				emailService.sendEmail(user.getEmail(), subject, body);
-			}
-			catch(Exception e)
-			{
-				// Email sending failed silently — registration is already done
-				e.printStackTrace();
-			}
+			/* Send welcome email in background thread so success page shows instantly */
+			final User registeredUser = user;
+			new Thread(() -> {
+				try
+				{
+					String subject = "Welcome to VK Academy!";
+					String body = "Hi " + registeredUser.getName() + ",\n\n" +
+					              "Congratulations! Your registration with VK Academy is successful.\n" +
+						          "You can now log in and start learning.\n\n" +
+					              "Best Regards,\n" +
+						          "Vishal Kumar (Founder, VK Academy)";
+					emailService.sendEmail(registeredUser.getEmail(), subject, body);
+				}
+				catch(Exception e)
+				{
+					// Email sending failed silently — registration is already done
+					e.printStackTrace();
+				}
+			}).start();
 
 			return "register";
 		}
