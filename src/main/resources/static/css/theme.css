@@ -162,6 +162,33 @@ body {
     border: 1px solid var(--border-light) !important;
     border-radius: 12px !important;
     box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+}
+
+.card-img-top {
+    height: 200px;
+    object-fit: cover;
+}
+
+.card-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+/* Push actions to bottom */
+.card-body > div:last-child,
+.card-body > .btn-primary,
+.card-body > .btn-outline-primary {
+    margin-top: auto;
+}
+
+/* Responsive Admin Login Card */
+body > .card {
+    max-width: 400px !important;
+    width: 92% !important;
+    margin: 20px auto;
 }
 
 /* Denotive Typography */
@@ -352,6 +379,18 @@ h1, h2, h3, h4, h5, h6 {
     .stat-label {
         font-size: 0.6rem !important;
         letter-spacing: 0;
+    }
+    
+    /* Contact Section Mobile Margins */
+    #contact-us .container,
+    #contact-us .text-center {
+        padding-left: 20px !important;
+        padding-right: 20px !important;
+    }
+    
+    #contact-us .lead {
+        margin-left: 10px;
+        margin-right: 10px;
     }
 }
 
