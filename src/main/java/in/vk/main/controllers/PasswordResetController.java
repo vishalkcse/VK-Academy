@@ -81,7 +81,7 @@ public class PasswordResetController {
 
 	@PostMapping("/resetPasswordForm")
 	public String handleResetPassword(@RequestParam("email") String email, 
-									  @RequestParam("otp") String userOtp,
+@RequestParam("otp") String userOtp,
 									  @RequestParam("newPassword") String newPassword, 
 									  Model model, 
 									  HttpSession session) {

@@ -45,10 +45,9 @@
                 <div class="col-lg-4 col-md-6">
                     <form action="loginForm" method="post">
                         <div class="card shadow p-4 p-md-5">
-                                                <div th:if="${errorMsg}" class="mb-3 alert alert-danger" role="alert">
-
-                            <span th:text="${errorMsg}"></span>
-							</div>
+                            <div th:if="${errorMsg}" class="mb-3 alert alert-danger" role="alert">
+                                <span th:text="${errorMsg}"></span>
+                            </div>
                             <div class="mb-3">
                                 <label class="form-label">Email Id :</label>
                                 <input type="email" class="form-control" name="email" />
@@ -60,7 +59,8 @@
                                 <label class="form-label">Password : </label>
                                 <input type="password" class="form-control" name="password" />
                             </div>
-                            <div class="mb-3 text-end">
+                            <div class="mb-3 d-flex justify-content-between align-items-center">
+                                <a href="#" onclick="autofillStudent(); return false;" class="text-decoration-none small text-muted">Demo Student</a>
                                 <a href="forgotPassword" class="text-decoration-none small text-primary fw-semibold">Forgot Password?</a>
                             </div>
                             <button type="submit" class="btn btn-primary w-100 mb-3">Login</button>
@@ -81,9 +81,18 @@
                             </a>
                             
                             <div class="mt-4 pt-3 border-top text-center">
-                                <a href="adminLogin" class="text-secondary text-decoration-none small">
-                                    <i class="bi bi-person-lock me-1"></i> Login as Admin
-                                </a>
+                                <div class="d-flex justify-content-center align-items-center gap-3 mb-2">
+                                    <a href="#" onclick="autofillStudent(); return false;" class="text-secondary text-decoration-none small">Demo Student</a>
+                                    <span class="text-muted small">•</span>
+                                    <a href="employeeLogin?autofill=true" class="text-secondary text-decoration-none small">Demo Employee</a>
+                                    <span class="text-muted small">•</span>
+                                    <a href="adminLogin?autofill=true" class="text-secondary text-decoration-none small">Demo Admin</a>
+                                </div>
+                                <div class="d-flex justify-content-center align-items-center gap-3">
+                                    <a href="employeeLogin" class="text-secondary text-decoration-none small">Login as Employee</a>
+                                    <span class="text-muted small">•</span>
+                                    <a href="adminLogin" class="text-secondary text-decoration-none small">Login as Admin</a>
+                                </div>
                             </div>
                             <div class="mt-2 text-center">
                                 <span class="text-muted small">Don't have an account? </span>
@@ -106,6 +115,18 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
+
+    <script>
+        function autofillStudent() {
+            var emailInput = document.querySelector('input[name="email"]');
+            var passInput = document.querySelector('input[name="password"]');
+            if(emailInput && passInput) {
+                emailInput.value = 'student@gmail.com';
+                passInput.value = 'student123';
+                emailInput.focus();
+            }
+        }
+    </script>
 </body>
 
 </html>

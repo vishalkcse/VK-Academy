@@ -32,7 +32,7 @@ public class OrdersApi {
     @Autowired
     private in.vk.main.services.InvoiceService invoiceService;
 
-    @Autowired
+    @Autowired                                          
     private in.vk.main.services.EmailService emailService;
 
     @PostMapping("/storeOrderDetails")
