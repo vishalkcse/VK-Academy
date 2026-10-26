@@ -1,6 +1,7 @@
 package in.vk.main.controllers;
 
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -17,6 +18,9 @@ import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class PasswordResetController {
+
+	// Thread-safe in-memory cache for OTPs to prevent session loss issues
+	private static final ConcurrentHashMap<String, String> otpCache = new ConcurrentHashMap<>();
 
 	@Autowired
 	private UserService userService;
@@ -42,31 +46,38 @@ public class PasswordResetController {
 				return "forgot-password";
 			}
 
-			User user = userRepository.findFirstByEmail(email);
+			String cleanEmail = email != null ? email.trim() : "";
+			User user = userRepository.findFirstByEmail(cleanEmail);
+			if (user == null && cleanEmail.contains("@")) {
+				user = userRepository.findFirstByEmail(cleanEmail.toLowerCase());
+			}
+
 			if (user != null) {
 				// Generate 6-digit OTP
 				Random random = new Random();
 				int otp = 100000 + random.nextInt(900000);
+				String otpStr = String.valueOf(otp);
 				
-				session.setAttribute("otp", String.valueOf(otp));
-				session.setAttribute("resetEmail", email);
+				session.setAttribute("otp", otpStr);
+				session.setAttribute("resetEmail", user.getEmail());
+				otpCache.put(user.getEmail().toLowerCase(), otpStr);
 
 				String subject = "Password Reset OTP - VK Academy";
 				String body = "Hi " + user.getName() + ",\n\n" +
-				              "Your OTP for resetting your VK Academy password is: " + otp + "\n" +
+				              "Your OTP for resetting your VK Academy password is: " + otpStr + "\n" +
 						      "Please do not share this OTP with anyone.\n\n" +
 				              "Best Regards,\n" +
 						      "VK Academy Team";
 				
-				System.out.println("Sending OTP to: " + email);
-				boolean isSent = emailService.sendEmail(email, subject, body);
+				System.out.println("Sending OTP to: " + user.getEmail());
+				boolean isSent = emailService.sendEmail(user.getEmail(), subject, body);
 				
 				if(!isSent) {
 					model.addAttribute("errorMsg", "Failed to send OTP. Please check your email configuration.");
 					return "forgot-password";
 				}
 
-				model.addAttribute("email", email);
+				model.addAttribute("email", user.getEmail());
 				return "reset-password";
 			} else {
 				model.addAttribute("errorMsg", "Email id not registered with us!");
@@ -80,26 +91,39 @@ public class PasswordResetController {
 	}
 
 	@PostMapping("/resetPasswordForm")
-	public String handleResetPassword(@RequestParam("email") String email, 
-@RequestParam("otp") String userOtp,
+	public String handleResetPassword(@RequestParam(name = "email", required = false) String email, 
+									  @RequestParam("otp") String userOtp,
 									  @RequestParam("newPassword") String newPassword, 
 									  Model model, 
 									  HttpSession session) {
 		try {
-			String sessionOtp = (String) session.getAttribute("otp");
 			String sessionEmail = (String) session.getAttribute("resetEmail");
+			String targetEmail = (email != null && !email.trim().isEmpty()) ? email.trim() : sessionEmail;
+			if (targetEmail != null) targetEmail = targetEmail.trim();
 
-			if (sessionOtp != null && sessionOtp.equals(userOtp) && sessionEmail != null && sessionEmail.equals(email)) {
-				userService.resetPassword(email, newPassword);
+			String cleanTargetKey = targetEmail != null ? targetEmail.toLowerCase() : "";
+			String cleanOtp = userOtp != null ? userOtp.trim() : "";
+
+			String sessionOtp = (String) session.getAttribute("otp");
+			String cachedOtp = !cleanTargetKey.isEmpty() ? otpCache.get(cleanTargetKey) : null;
+
+			boolean isOtpValid = (sessionOtp != null && sessionOtp.trim().equals(cleanOtp)) ||
+								 (cachedOtp != null && cachedOtp.trim().equals(cleanOtp));
+
+			if (targetEmail != null && isOtpValid) {
+				userService.resetPassword(targetEmail, newPassword);
 				
+				if (!cleanTargetKey.isEmpty()) {
+					otpCache.remove(cleanTargetKey);
+				}
 				session.removeAttribute("otp");
 				session.removeAttribute("resetEmail");
 				
-				model.addAttribute("successMsg", "Password reset successfully! Please login.");
+				model.addAttribute("successMsg", "Password reset successfully! Please login with your new password.");
 				return "login";
 			} else {
-				model.addAttribute("email", email);
-				model.addAttribute("errorMsg", "Invalid OTP or Email! Please try again.");
+				model.addAttribute("email", targetEmail);
+				model.addAttribute("errorMsg", "Invalid OTP or Email! Please check your OTP and try again.");
 				return "reset-password";
 			}
 		} catch (Exception e) {
